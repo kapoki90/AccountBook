@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.koreait.Accountbook">
+
+<insert id="write" parameterType="kr.koreait.Accountbook.VO.AccountbookVO">
+insert into Accountbook(idx,wdate,income_expense,amount,currency,kind,memo,card_or_cash,id,password)
+	values (Accountbook_idx_seq.nextval,#{wdate},#{income_expense},#{amount},#{currency},#{kind},#{memo},#{card_or_cash},#{id},#{password})
+</insert>
+
+
+<select id="selectAll" resultType="kr.koreait.Accountbook.VO.AccountbookVO">
+select * from Accountbook
+</select>
+
+<insert id="join" parameterType="kr.koreait.Accountbook.VO.AccountbookVO">
+insert into AccountbookMemberInfo(idx,id,password)
+	values (Accountbook_idx_seq.nextval,#{id},#{password})
+</insert>
+
+<select id="id_count" parameterType="kr.koreait.Accountbook.VO.AccountbookVO" resultType="int">
+select count(*) from AccountbookMemberInfo where id = #{id}
+</select>
+
+<select id="idpw_count" parameterType="kr.koreait.Accountbook.VO.AccountbookVO" resultType="int">
+select count(*) from AccountbookMemberInfo where id= #{id} and password = #{password}
+</select>
+
+<select id="select_by_idpw" parameterType="kr.koreait.Accountbook.VO.AccountbookVO" resultType="kr.koreait.Accountbook.VO.AccountbookVO" >
+<!-- select * from Accountbook where id= #{id} and password = #{password} and currency is not null -->
+	<![CDATA[
+		select * from (
+			select rownum rnum, T.* from (
+				select * from Accountbook order by idx desc
+			) T where rownum <= #{endNo}
+		) where rnum >= #{startNo}
+	]]>
+</select>
+
+<select id="sum_of_income" parameterType="kr.koreait.Accountbook.VO.AccountbookVO" resultType="kr.koreait.Accountbook.VO.AccountbookVO" >
+select * from Accountbook where id= #{id} and password = #{password} and income_expense='income' 
+</select>
+
+<select id="sum_of_expense" parameterType="kr.koreait.Accountbook.VO.AccountbookVO" resultType="kr.koreait.Accountbook.VO.AccountbookVO" >
+select * from Accountbook where id= #{id} and password = #{password} and income_expense='expense'
+</select>
+
+<select id="sumOfIncomeCash" parameterType="kr.koreait.Accountbook.VO.AccountbookVO" resultType="kr.koreait.Accountbook.VO.AccountbookVO" >
+select * from Accountbook where id= #{id} and password = #{password} and income_expense='income' and card_or_cash='cash'
+</select>
+
+<select id="sumOfExpenseCash" parameterType="kr.koreait.Accountbook.VO.AccountbookVO" resultType="kr.koreait.Accountbook.VO.AccountbookVO" >
+select * from Accountbook where id= #{id} and password = #{password} and income_expense='expense' and card_or_cash='cash'
+</select>
+
+<delete id="delete" parameterType="int">
+	delete from Accountbook where idx = #{idx}
+</delete>
+
+<update id="update" parameterType="kr.koreait.Accountbook.VO.AccountbookVO">
+	update Accountbook set income_expense=#{income_expense},amount=#{amount},currency=#{currency},kind=#{kind},memo=#{memo},card_or_cash=#{card_or_cash} where idx = #{idx}
+</update>
+
+<!-- 부모글 테이블에서 전체 글의 개수를 얻어온다. -->
+<select id="selectCount" resultType="int">
+	select count(*) from Accountbook
+</select>
+
+</mapper>
